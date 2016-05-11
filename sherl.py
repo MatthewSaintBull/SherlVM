@@ -29,10 +29,10 @@ R4   - General Purpose register 4
 
 stack = [] #stack which will contains the values
 
-R1 = "" #################################
-R2 = "" #        REGISTERS GENERAL      #
-R3 = "" #            PURPOSE            #
-R4 = "" #################################
+ #################################
+ #        REGISTERS GENERAL      #
+ #            PURPOSE            #
+ #################################
 
 
 registers = {'R1':'1','R2':'22','R3':'32','R4':'4'}
