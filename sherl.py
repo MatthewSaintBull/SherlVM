@@ -345,11 +345,12 @@ def do_JNZ():
   global i 
   global l
   global cmp_val
-
+  #LAB EQUALS LABEL
   lab = l[i+1] + ':'
-  #DA CANELLARE
-  print cmp_val
+  
   try:
+   #CHECK IF COMPARE IS TRUE OR FALSE
+   #THEN IF THE COMPARE IS ZERO , JUMP
     if cmp_val == False:
       i = l.index(lab)
     else: i = i+1
