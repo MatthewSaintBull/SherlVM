@@ -26,8 +26,10 @@ R2   - General Purpose register 2
 R3   - General Purpose register 3
 R4   - General Purpose register 4
 """
-
+l = ''
+i = 0
 stack = [] #stack which will contains the values
+label = [] #array of labels
 
  #################################
  #        REGISTERS GENERAL      #
@@ -36,7 +38,7 @@ stack = [] #stack which will contains the values
 
 
 registers = {'R1':'1','R2':'22','R3':'32','R4':'4'}
-
+cmp_val = True
 
 OP_EOP = 'END'           #############################################
 OP_PUSH = 'PUSH'         #              INSTRUCTION SET              #
@@ -51,7 +53,10 @@ OP_RADD = 'RADD'         # RMUL: MUL REGISTER ; RDIV : DIV REGISTER ;#
 OP_RSUB = 'RSUB'         #############################################
 OP_RMUL = 'RMUL'
 OP_RDIV = 'RDIV'
-
+OP_CMP = 'CMP'
+OP_JMP = 'JMP'
+OP_JNZ = 'JNZ'
+OP_JMZ = 'JMZ'
 
 ###################################
 #          LOAD FUNCTION          #
@@ -78,7 +83,9 @@ def load(argv):
 # INTO THE STACK #
 ##################
 
-def do_PUSH(i,l):
+def do_PUSH():
+  global l
+  global i
   topush = int(l[i+1])
   stack.append(topush)
 
@@ -103,7 +110,9 @@ def do_POP():
 #        INSTRUCTION        #
 #############################
 
-def make_SHOW(toshow, i, l):
+def make_SHOW(toshow):
+  global l
+  global i
   if toshow == "STACK": return stack[-1] 
   #IF THE NEXT PAR IN THE SOURCE IS
   #STACK, PRINT THE LAST VALUE IN THE STACK
@@ -126,9 +135,11 @@ def make_SHOW(toshow, i, l):
 #   IT'LL PRINT THE RESULT   #
 ##############################
 
-def do_PRINT(i, l):
+def do_PRINT():
+  global l
+  global i
   toshow = l[i + 1]
-  result = make_SHOW(toshow, i, l)
+  result = make_SHOW(toshow)
   print result
 
 ##########################
@@ -205,7 +216,9 @@ def do_DIV():
 #     TWO REGISTERS      #
 ##########################
 
-def do_RADD(i,l):
+def do_RADD():
+  global l
+  global i
   reg_sum =  l[i + 1] #PICK FROM INSTRUCTIONS , THE REGISTERS WHICH ARE USED FOR
   reg_1 = l[i + 2]    #RADD. 
   reg_2 = l[i + 3]
@@ -220,7 +233,9 @@ def do_RADD(i,l):
 #     TWO REGISTERS      #
 ##########################
 
-def do_RSUB(i,l):
+def do_RSUB():
+  global l
+  global i
   reg_sub =  l[i + 1] 
   reg_1 = l[i + 2]
   reg_2 = l[i + 3]
@@ -233,7 +248,9 @@ def do_RSUB(i,l):
 #     TWO REGISTERS      #
 ##########################
 
-def do_RMUL(i,l):
+def do_RMUL():
+  global l
+  global i
   reg_mul =  l[i + 1] 
   reg_1 = l[i + 2]
   reg_2 = l[i + 3]
@@ -248,11 +265,97 @@ def do_RMUL(i,l):
 #     TWO REGISTERS      #
 ##########################
 
-def do_RDIV(i,l):
+def do_RDIV():
+  global l
+  global i
   reg_div =  l[i + 1] 
   reg_1 = l[i + 2]
   reg_2 = l[i + 3]
   registers[reg_div] = int(registers[reg_1]) /  int(registers[reg_2])
+
+#########################
+#    COMPARE FUNCTION   #
+#########################
+#  DO COMPARE BETWEEN   # 
+#  REGISTERS AND VALS   #
+#########################
+
+def do_CMP():
+  global l
+  global i
+  global cmp_val
+  #IF NUM AND NUM
+  if l[i+1].isdigit() and l[i+2].isdigit():
+    try:
+      if l[i+1]  == l[i+2] : 
+        cmp_val =  True
+      else : cmp_val =  False
+    except : 
+      print "ERROR COMPARE"
+      l[i+1] = 'END'
+
+  #IF NUM AND REGISTER
+  elif l[i+1].isdigit() and not(l[i+2].isdigit()):
+    try:
+      if l[i+1] == registers[l[i+2]]:
+        cmp_val = True
+      else : cmp_val =  False
+    except : 
+      print "ERROR COMPARE"
+      l[i+1] = 'END'
+
+  #IF REGISTER AND NUM  
+  elif not(l[i+1].isdigit()) and l[i+2].isdigit():
+    try:
+      if registers[l[i+1]] == l[i+2]:
+        cmp_val = True
+      else: cmp_val = False
+    except : 
+      print "ERROR COMPARE"
+      l[i+1] = 'END'
+
+  #IF REGISTER AND REGISTER
+  else :
+    try:
+      if registers[l[i+1]] == registers[l[i+2]]:
+        cmp_val =  True
+      else: cmp_val =  False
+    except: 
+      print "ERROR COMPARE"
+      l[i+1] = 'END'
+
+def do_JMP():
+  global i
+  global l
+  lab = l[i+1] + ':'
+  if not(lab in label):
+    print "UNKNOWN LABEL"
+    l[i+1] = 'END'
+  else : 
+    i = l.index(lab)
+
+######################
+#    JNZ FUNCTION    #
+######################
+#  IT MAKES JUMP IF  #
+#    CMP IS False    #
+######################
+
+def do_JNZ():
+  global i 
+  global l
+  global cmp_val
+
+  lab = l[i+1] + ':'
+  #DA CANELLARE
+  print cmp_val
+  try:
+    if cmp_val == False:
+      i = l.index(lab)
+    else: i = i+1
+  except:
+    print "UNKNOWN LABEL"
+    l[i+1] = 'END'
 
 ##########################
 #      MOV FUNCTION      #
@@ -261,7 +364,9 @@ def do_RDIV(i,l):
 # INTO A REGISTER (R1)   #
 ##########################
 
-def make_MOV(register, val, i, l):
+def make_MOV(register, val):
+  global i 
+  global l
   try : 
     registers[register] = val
   except :  
@@ -283,10 +388,12 @@ def make_MOV(register, val, i, l):
 #####################
 
 
-def do_MOV(i,l):
+def do_MOV():
+  global i
+  global l
   register = l[i + 1] #PICK REGISTER FROM INSTRUCTION LIST
   val = l[i + 2] #PICK THE VALUE
-  make_MOV(register, val, i, l) #PASS THEM AT THE MAKE MOV
+  make_MOV(register, val) #PASS THEM AT THE MAKE MOV
   
 ################################
 #       EXECUTE FUNCTION       #
@@ -296,8 +403,14 @@ def do_MOV(i,l):
 #    FUNCTIONS OF THE SCRIPT   #
 ################################
 
-def execute(l):
-  i=0
+def execute():
+  global i
+  global l 
+  c = 0
+  while c < len(l):
+    if ':' in l[c]:
+      label.append(l[c])
+    c+=1
 
   while i < len(l): #WHILE THERE IS AN INSTRUCTION INTO THE TOKEN
     instruction = l[i] #PICK THE INSTRUCTION
@@ -305,11 +418,11 @@ def execute(l):
     if instruction == OP_EOP: 
       break
     elif instruction == OP_PUSH:
-      do_PUSH(i,l)
+      do_PUSH()
     elif instruction == OP_POP:
       do_POP()
     elif instruction == OP_PRINT:
-      do_PRINT(i,l)
+      do_PRINT()
       i += 1
     elif instruction == OP_ADD:
       do_ADD()
@@ -320,17 +433,22 @@ def execute(l):
     elif instruction == OP_DIV:
       do_DIV()
     elif instruction == OP_MOV:
-      do_MOV(i,l)
+      do_MOV()
       i += 1
     elif instruction == OP_RADD:
-      do_RADD(i,l)
+      do_RADD()
     elif instruction == OP_RSUB:
-      do_RSUB(i,l)
+      do_RSUB()
     elif instruction == OP_RMUL:
-      do_RMUL(i,l)
+      do_RMUL()
     elif instruction == OP_RDIV:
-      do_RDIV(i,l)
-
+      do_RDIV()
+    elif instruction == OP_CMP:
+      do_CMP()
+    elif instruction == OP_JMP:
+      do_JMP()
+    elif instruction == OP_JNZ:
+      do_JNZ()
     i += 1
 
 ####################
@@ -341,8 +459,9 @@ def execute(l):
 
 
 def run_program(argv):
+  global l
   l = load(argv)
-  execute(l)
+  execute()
 
 #################
 # MAIN FUNCTION #
