@@ -24,10 +24,19 @@ PRINT registers
 **RSUB R3 R2 R1** ---------> subtract R1 from R2 and put the result in R3<br />
 **RMUL R3 R2 R1** ---------> multiplicate R1 and R2 and put the result in R3<br />
 **RDIV R3 R2 R1** ---------> make the division between R2 and R1 and put the result in R3<br />
+**JMP Label** -------------> jump at the label declared into the source<br />
+**CMP R3 10** -------------> compare registers and values<br />
+**JNZ Label** -------------> jump at the label declared into the source only if the precedent compare got a False result<br />
+**JMZ Label** -------------> jump at the label declared into the source only if the precedent compare got a True result<br />
+**Label:** ----------------> a label for jumps during the execution of the code<br />
 **END** -------------------> END OF PROGRAM<br />
 
-To run the SHERLVM , you have to have python 2.X installed on your computer. <br /><br />
-##HOW TO RUN : 
+##COMING SOON :
+**INC R2** ----------------> increment a register or the stack<br />
+**DEC R1** ----------------> decrement a register or the stack<br />
 
+
+##HOW TO RUN : 
+To run the SHERLVM , you have to have python 2.X installed on your computer. <br /><br />
 So , from terminal do : <br />
     python sherl.py script.srl <br />
